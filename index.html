@@ -119,7 +119,7 @@
 
             // Enviar requisição para o servidor para download
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', `/download?url=${encodeURIComponent(urlValue)}&password=${encodeURIComponent(passwordValue)}`, true);
+           xhr.open('GET', /download?url=${encodeURIComponent(urlValue)}&password=${encodeURIComponent(passwordValue)}, true);
             xhr.responseType = 'blob';
 
             xhr.onload = function() {
