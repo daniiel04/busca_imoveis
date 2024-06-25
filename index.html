@@ -118,7 +118,7 @@
     }
 
     // Fazer requisição GET diretamente do frontend usando fetch
-    fetch(`/api/scrape?url=${encodeURIComponent(urlValue)}&password=${encodeURIComponent(passwordValue)}`)
+    fetch('GET', `/download?url=${encodeURIComponent(urlValue)}&password=${encodeURIComponent(passwordValue)}`, true);
         .then(response => {
             if (!response.ok) {
                 throw new Error('Erro ao processar sua solicitação.');
