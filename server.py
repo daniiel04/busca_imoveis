@@ -137,7 +137,7 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
 
 
 # Criar um servidor HTTP com o manipulador personalizado
-with socketserver.TCPServer(("", 8000), CustomHandler) as httpd:
+with socketserver.TCPServer(("localhost", 8000), CustomHandler) as httpd:
     print("Servindo na porta", 8000)
     httpd.serve_forever()
 
