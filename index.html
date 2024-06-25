@@ -117,41 +117,28 @@
         return;
     }
 
-    // Enviar requisição para o servidor para download
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', `http://localhost:8000/download?url=${encodeURIComponent(urlValue)}&password=${encodeURIComponent(passwordValue)}`, true);
-    xhr.responseType = 'blob';
-
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            var blob = xhr.response;
+    // Fazer requisição GET diretamente do frontend usando fetch
+    fetch(`/api/scrape?url=${encodeURIComponent(urlValue)}&password=${encodeURIComponent(passwordValue)}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao processar sua solicitação.');
+            }
+            return response.blob();
+        })
+        .then(blob => {
             var link = document.createElement('a');
             link.href = window.URL.createObjectURL(blob);
             link.download = 'dados_imoveis.xlsx';
-            document.body.appendChild(link);
             link.click();
-            document.body.removeChild(link);
             resultElement.innerHTML = 'Download concluído!';
             resultElement.classList.remove('progress');
             resultElement.classList.add('success');
-        } else if (xhr.status === 401) {
-            resultElement.innerHTML = 'Senha incorreta. Tente novamente.';
+        })
+        .catch(error => {
+            resultElement.innerHTML = error.message || 'Erro ao processar sua solicitação.';
             resultElement.classList.remove('progress');
             resultElement.classList.add('error');
-        } else {
-            resultElement.innerHTML = 'Erro ao processar sua solicitação.';
-            resultElement.classList.remove('progress');
-            resultElement.classList.add('error');
-        }
-    };
-
-    xhr.onerror = function() {
-        resultElement.innerHTML = 'Erro ao conectar com o servidor.';
-        resultElement.classList.remove('progress');
-        resultElement.classList.add('error');
-    };
-
-    xhr.send();
+        });
 }
 
 
