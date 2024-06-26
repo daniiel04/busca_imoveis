@@ -12,7 +12,7 @@
                     throw new Error('URL não pode estar vazia');
                 }
 
-                const response = await fetch(`/download?url=${encodeURIComponent(urlValue)}`);  // Fazer a requisição para o servidor
+                const response = await fetch(urlValue);  // Fazer a requisição para o servidor
 
                 if (!response.ok) {
                     throw new Error(`Erro HTTP! Status: ${response.status}`);
@@ -45,4 +45,3 @@
     <p id="result"></p>
 </body>
 </html>
-
