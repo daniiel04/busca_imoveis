@@ -3,33 +3,46 @@
 <head>
     <title>Download Page</title>
     <script>
-        function handleButtonClick() {
-            const urlValue = document.getElementById('urlInput').value;
-            fetch(`/download?url=${encodeURIComponent(urlValue)}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`)
-                    }
-                    return response.blob()
-                })
-                .then(blob => {
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.style.display = 'none';
-                    a.href = url;
-                    a.download = 'dados_imoveis.xlsx';  // Nome do arquivo que será baixado
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                })
-                .catch(error => console.error('Error:', error));
+        async function handleButtonClick() {
+            try {
+                const urlValue = document.getElementById('urlInput').value.trim();  // Obter valor da entrada de URL
+
+                // Validar se a entrada de URL não está vazia
+                if (!urlValue) {
+                    throw new Error('URL não pode estar vazia');
+                }
+
+                const response = await fetch(`/download?url=${encodeURIComponent(urlValue)}`);  // Fazer a requisição para o servidor
+
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP! Status: ${response.status}`);
+                }
+
+                const blob = await response.blob();  // Converter a resposta para um blob
+
+                const url = window.URL.createObjectURL(blob);  // Criar URL para o blob
+
+                const a = document.createElement('a');  // Criar um elemento de âncora para download
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'dados_imoveis.xlsx';  // Nome do arquivo que será baixado
+                document.body.appendChild(a);
+                a.click();  // Simular o clique no link para iniciar o download
+
+                window.URL.revokeObjectURL(url);  // Liberar o URL do objeto blob após o download
+            } catch (error) {
+                console.error('Erro:', error);
+                // Exibir uma mensagem de erro para o usuário
+                alert('Falha ao baixar o arquivo. Verifique sua entrada e tente novamente.');
+            }
         }
     </script>
 </head>
 <body>
-    <h1>Enter URL to Download</h1>
-    <input type="text" id="urlInput" placeholder="Enter URL" />
+    <h1>Informe a URL para Download</h1>
+    <input type="text" id="urlInput" placeholder="Digite a URL" />
     <button onclick="handleButtonClick()">Download</button>
     <p id="result"></p>
 </body>
 </html>
+
