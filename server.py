@@ -140,3 +140,4 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
 with socketserver.TCPServer(("", 8000), CustomHandler) as httpd:
     print("Servindo na porta", 8000)
     httpd.serve_forever()
+
