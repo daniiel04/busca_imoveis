@@ -74,7 +74,7 @@
     </div>
 
     <script>
-       function handleDownload() {
+     function handleDownload() {
     var urlValue = document.getElementById('urlInput').value.trim();
     var passwordValue = document.getElementById('passwordInput').value.trim();
     var resultElement = document.getElementById('result');
@@ -94,7 +94,7 @@
     resultElement.innerHTML = 'Download em andamento...';
 
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', `https://your-lambda-endpoint.amazonaws.com/download?url=${encodeURIComponent(urlValue)}&password=${encodeURIComponent(passwordValue)}`, true);
+    xhr.open('GET', 'https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com/prod/download?url=' + encodeURIComponent(urlValue) + '&password=' + encodeURIComponent(passwordValue), true);
     xhr.responseType = 'blob';
 
     xhr.onload = function() {
@@ -118,6 +118,7 @@
 
     xhr.send();
 }
+
 
     </script>
 </body>
