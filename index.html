@@ -1,100 +1,35 @@
-
 <!DOCTYPE html>
 <html>
 <head>
     <title>Download Page</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            text-align: center;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 400px;
-        }
-        h1 {
-            margin-bottom: 20px;
-            font-size: 24px;
-            color: #444;
-        }
-        input[type="text"] {
-            width: calc(100% - 22px);
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        #result {
-            margin-top: 20px;
-            color: #5cb85c;
-            font-size: 16px;
-        }
-    </style>
     <script>
         function handleButtonClick() {
             const urlValue = document.getElementById('urlInput').value;
-            const resultElement = document.getElementById('result');
-            resultElement.style.color = '#f0ad4e'; // Orange color for in-progress
-            resultElement.textContent = 'Download in progress, this may take a few minutes...';
-            
-            fetch(/download?url=${encodeURIComponent(urlValue)})
+            fetch(`/download?url=${encodeURIComponent(urlValue)}`)
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error(HTTP error! Status: ${response.status});
+                        throw new Error(`HTTP error! Status: ${response.status}`)
                     }
-                    return response.blob();
+                    return response.blob()
                 })
                 .then(blob => {
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.style.display = 'none';
                     a.href = url;
-                    a.download = 'dados_imoveis.xlsx'; // Name of the downloaded file
+                    a.download = 'dados_imoveis.xlsx';  // Nome do arquivo que será baixado
                     document.body.appendChild(a);
                     a.click();
                     window.URL.revokeObjectURL(url);
-                    resultElement.textContent = 'Download completed!';
-                    resultElement.style.color = '#5cb85c'; // Green color for success
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                    resultElement.textContent = 'Error downloading file.';
-                    resultElement.style.color = '#d9534f'; // Red color for error
-                });
+                .catch(error => console.error('Error:', error));
         }
     </script>
 </head>
 <body>
-    <div class="container">
-        <h1>Enter URL to Download</h1>
-        <input type="text" id="urlInput" placeholder="Enter URL" />
-        <button onclick="handleButtonClick()">Download</button>
-        <p id="result"></p>
-    </div>
+    <h1>Enter URL to Download</h1>
+    <input type="text" id="urlInput" placeholder="Enter URL" />
+    <button onclick="handleButtonClick()">Download</button>
+    <p id="result"></p>
 </body>
 </html>
