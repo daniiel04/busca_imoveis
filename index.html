@@ -4,7 +4,7 @@
     <title>Download de dados do Imovirtual</title>
     <meta charset="UTF-8">
     <style>
-        body {
+    body {
             font-family: Arial, sans-serif;
             background-color: #f5f5f5;
             color: #333;
@@ -69,12 +69,12 @@
         <h1>Download de dados do Imovirtual</h1>
         <input type="text" id="urlInput" placeholder="Digite a URL do Imovirtual" />
         <input type="password" id="passwordInput" placeholder="Digite a senha para acessar" />
-        <button onclick="HandleDownload()">Download</button>
+        <button onclick="startDownload()">Download</button>
         <p id="result"></p>
     </div>
 
     <script>
-        function HandleDownload() {
+        function startDownload() {
             var urlValue = document.getElementById('urlInput').value.trim();
             var passwordValue = document.getElementById('passwordInput').value.trim();
             var resultElement = document.getElementById('result');
