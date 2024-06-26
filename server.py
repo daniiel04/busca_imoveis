@@ -1,39 +1,14 @@
-import json
+import http.server
+import socketserver
+import urllib.parse
+import io
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
-import io
 
+# Definir a senha necessária para acessar o download
 PASSWORD = 'password123'
 
-def lambda_handler(event, context):
-    url_base = event['queryStringParameters']['url']
-    password = event['queryStringParameters']['password']
-
-    if password != PASSWORD:
-        return {
-            'statusCode': 401,
-            'body': 'Unauthorized: senha incorreta'
-        }
-
-    if not url_base:
-        return {
-            'statusCode': 400,
-            'body': 'Bad Request: parâmetro url_base faltando'
-        }
-
-    dados_imoveis = scrape_imoveis(url_base)
-    excel_data = salvar_excel(dados_imoveis)
-
-    return {
-        'statusCode': 200,
-        'headers': {
-            'Content-Disposition': 'attachment; filename="dados_imoveis.xlsx"',
-            'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        },
-        'body': excel_data.read(),
-        'isBase64Encoded': True
-    }
 
 def obter_numero_paginas(url_base):
     headers = {
@@ -53,6 +28,7 @@ def obter_numero_paginas(url_base):
     paginas = paginacao.find_all('li')
     total_paginas = int(paginas[-2].text.strip()) if paginas else 1
     return total_paginas
+
 
 def scrape_imoveis(url_base):
     dados_imoveis = []
@@ -105,14 +81,62 @@ def scrape_imoveis(url_base):
 
     return dados_imoveis
 
+
 def salvar_excel(dados):
     df = pd.DataFrame(dados)
 
+    # Criar um buffer de bytes para salvar o arquivo Excel
     output = io.BytesIO()
-    writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    df.to_excel(writer, index=False, sheet_name='Dados Imóveis')
-    writer.save()
+
+    # Salvar o DataFrame para o Excel
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Sheet1')
+
     output.seek(0)
-    
     return output
 
+
+class CustomHandler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        parsed_path = urllib.parse.urlparse(self.path)
+        query_params = urllib.parse.parse_qs(parsed_path.query)
+
+        if parsed_path.path == "/":  # Servir index.html para o caminho raiz
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            with open('index.html', 'rb') as f:
+                self.wfile.write(f.read())
+            return
+
+        if parsed_path.path == "/download":
+            url_base = query_params.get('url', [None])[0]
+            password = query_params.get('password', [None])[0]
+
+            # Verificar se a senha está correta
+            if password != PASSWORD:
+                self.send_response(401)
+                self.end_headers()
+                self.wfile.write('Unauthorized: senha incorreta'.encode('utf-8'))
+                return
+
+            if not url_base:
+                self.send_response(400)
+                self.end_headers()
+                self.wfile.write('Bad Request: parâmetro url_base faltando'.encode('utf-8'))
+                return
+
+            dados_imoveis = scrape_imoveis(url_base)
+            excel_data = salvar_excel(dados_imoveis)
+
+            self.send_response(200)
+            self.send_header('Content-Disposition', 'attachment; filename="dados_imoveis.xlsx"')
+            self.send_header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            self.end_headers()
+            self.wfile.write(excel_data.getvalue())
+
+
+# Criar um servidor HTTP com o manipulador personalizado
+with socketserver.TCPServer(("", 8000), CustomHandler) as httpd:
+    print("Servindo na porta", 8000)
+    httpd.serve_forever()
